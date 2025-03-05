@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
   schedule:
-    - cron:  '0 */6 * * *'    # Every 6 hours
+    - cron: '0 */6 * * *'  # Every 6 hours
   workflow_dispatch:
 
 jobs:
@@ -20,9 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
-        if [ -f requirements.txt ]; 
-            then pip install -r ./requirements.txt; 
-        fi
+        if [ -f requirements.txt ]; then pip install -r ./requirements.txt; fi
     - name: Produce Release files
       run: python main.py
     - name: Upload files to a GitHub release
@@ -34,3 +32,10 @@ jobs:
         file_glob: true
         overwrite: true
         body: ""
+    - name: Keep workflow alive
+      run: |
+        curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/hypercore-one/hqz-node-parser/actions/workflows/publisher.yml/dispatches \
+          -d '{"ref":"main"}'
